@@ -248,6 +248,43 @@ body.light-mode {
   font-weight: 600;
 }
 
+/* Enter button styled with premium romantic aesthetic */
+.enter-btn {
+  background: linear-gradient(135deg, #ff69b4, #8b5cf6);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  padding: 14px 36px;
+  border-radius: 50px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255, 105, 180, 0.6);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+  animation: floatBtn 2s ease-in-out infinite;
+}
+.enter-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 45px rgba(255, 105, 180, 0.9);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+.enter-btn:active {
+  transform: scale(0.96);
+}
+.enter-btn span {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes floatBtn {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+
 /* === FALLING ELEMENTS === */
 .falling-container {
   position: fixed;

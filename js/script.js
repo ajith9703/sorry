@@ -76,14 +76,41 @@ function initLoading() {
     if (progress >= 100) {
       progress = 100;
       clearInterval(interval);
+      
+      // When done, hide bar/percent and show Enter button
       setTimeout(() => {
-        cancelAnimationFrame(raf);
-        screen.classList.add('hidden');
-        setTimeout(() => screen.remove(), 800);
-      }, 400);
+        const barWrap = document.getElementById('loading-bar-wrap');
+        const enterBtn = document.getElementById('enter-btn');
+        
+        if (barWrap) barWrap.style.display = 'none';
+        if (pct) pct.style.display = 'none';
+        
+        if (enterBtn) {
+          enterBtn.style.display = 'inline-block';
+          
+          // Trigger entry on click
+          enterBtn.addEventListener('click', () => {
+            // Play background music (safely authorized by user action)
+            const bgMusic = document.getElementById('bg-music');
+            if (bgMusic) {
+              bgMusic.play().catch(() => {});
+            }
+            
+            // Dismiss loading screen
+            cancelAnimationFrame(raf);
+            screen.classList.add('hidden');
+            setTimeout(() => screen.remove(), 800);
+          });
+        } else {
+          // Fallback if button is missing
+          cancelAnimationFrame(raf);
+          screen.classList.add('hidden');
+          setTimeout(() => screen.remove(), 800);
+        }
+      }, 300);
     }
-    bar.style.width = progress + '%';
-    pct.textContent = Math.floor(progress) + '%';
+    if (bar) bar.style.width = progress + '%';
+    if (pct) pct.textContent = Math.floor(progress) + '%';
   }, 80);
 }
 
