@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I'm Sorry Aaru ❤️ | A Love Story</title>
+  <meta name="description" content="A heartfelt apology and declaration of love for Aaru — my world, my heart, my everything." />
+  <meta name="keywords" content="sorry aaru, love, apology, romantic, I love you" />
+  <meta name="author" content="Made with infinite love" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="I'm Sorry Aaru ❤️" />
+  <meta property="og:description" content="A heartfelt apology and love letter crafted just for you, Aaru." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/og-preview.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Sacramento&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,600&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body class="dark-mode">
+
+  <!-- ======================== CUSTOM CURSOR ======================== -->
+  <div id="cursor" class="cursor"></div>
+  <div id="cursor-trail" class="cursor-trail"></div>
+
+  <!-- ======================== SCROLL PROGRESS ======================== -->
+  <div id="scroll-progress" class="scroll-progress-bar"></div>
+
+  <!-- ======================== LOADING SCREEN ======================== -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-heart-wrap">
+        <div class="loading-heart">❤️</div>
+        <div class="loading-pulse"></div>
+      </div>
+      <div class="loading-title">Preparing something special...</div>
+      <div class="loading-subtitle">Just for <span class="loading-name">Aaru</span> 🌸</div>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <div class="loading-percent" id="loading-percent">0%</div>
+      <canvas id="loading-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- ======================== FALLING ELEMENTS ======================== -->
+  <div id="falling-container" class="falling-container" aria-hidden="true"></div>
+
+  <!-- ======================== BALLOONS CONTAINER ======================== -->
+  <div id="balloons-container" class="balloons-container" aria-hidden="true"></div>
+
+  <!-- ======================== BACKGROUND MUSIC ======================== -->
+  <audio id="bg-music" src="aaru1.mp3" loop preload="auto" autoplay></audio>
+
+  <!-- Floating Music Controls -->
+  <div class="music-controls-wrap">
+    <div id="music-mute" class="music-ctrl-btn" title="Mute/Unmute" role="button" tabindex="0" aria-label="Mute or unmute music">
+      <i class="fas fa-volume-high" id="mute-icon"></i>
+    </div>
+  </div>
+
+  <style>
+    .music-controls-wrap {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      display: flex;
+      gap: 12px;
+      z-index: 9999;
+    }
+    .music-ctrl-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff69b4, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255, 105, 180, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .music-ctrl-btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 6px 30px rgba(255, 105, 180, 0.7);
+    }
+    .music-ctrl-btn:active {
+      transform: scale(0.95);
+    }
+    .music-ctrl-btn i {
+      color: #fff;
+      font-size: 20px;
+      z-index: 2;
+    }
+    .music-ctrl-btn.muted {
+      background: linear-gradient(135deg, #555, #333);
+      box-shadow: 0 4px 15px rgba(100, 100, 100, 0.4);
+    }
+    /* Pulse ring when music is playing */
+    .music-ctrl-btn::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 105, 180, 0.4);
+      animation: musBtnPulse 2s ease-out infinite;
+      pointer-events: none;
+    }
+    .music-ctrl-btn.muted::after {
+      animation: none;
+      opacity: 0;
+    }
+    @keyframes musBtnPulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+  </style>
+
+  <script>
+    (function() {
+      const bgMusic = document.getElementById('bg-music');
+      const muteBtn = document.getElementById('music-mute');
+      const muteIcon = document.getElementById('mute-icon');
+      let isMuted = false;
+
+      bgMusic.volume = 0.5;
+
+      // Try autoplay immediately
+      bgMusic.play().catch(() => {
+        // Browser blocked autoplay — start on first interaction
+        function playOnce() {
+          bgMusic.play().catch(() => {});
+          document.removeEventListener('click', playOnce);
+          document.removeEventListener('touchstart', playOnce);
+          document.removeEventListener('scroll', playOnce);
+          document.removeEventListener('keydown', playOnce);
+        }
+        document.addEventListener('click', playOnce);
+        document.addEventListener('touchstart', playOnce);
+        document.addEventListener('scroll', playOnce);
+        document.addEventListener('keydown', playOnce);
+      });
+
+      // Mute / Unmute
+      function toggleMute() {
+        if (isMuted) {
+          bgMusic.muted = false;
+          isMuted = false;
+          muteIcon.className = 'fas fa-volume-high';
+          muteBtn.classList.remove('muted');
+        } else {
+          bgMusic.muted = true;
+          isMuted = true;
+          muteIcon.className = 'fas fa-volume-xmark';
+          muteBtn.classList.add('muted');
+        }
+      }
+
+      muteBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
+      muteBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMute(); }
+      });
+    })();
+  </script>
+
+  <!-- ======================== NAV ======================== -->
+  <nav id="navbar" class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">❤️ Aaru</div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><i class="fas fa-heart"></i></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#letter">Letter</a></li>
+
+      <li><a href="#reasons">Love</a></li>
+      <li><a href="#promises">Promises</a></li>
+      <li><a href="#heart">Heart</a></li>
+
+
+      <li><a href="#games">Games</a></li>
+    </ul>
+    <button id="theme-toggle" class="theme-btn" title="Toggle theme"><i class="fas fa-moon" id="theme-icon"></i></button>
+  </nav>
+
+  <main>
+    <!-- ======================== HERO SECTION ======================== -->
+    <section id="hero" class="hero-section" aria-label="Hero">
+      <canvas id="aurora-canvas" class="aurora-canvas"></canvas>
+      <div id="three-canvas-wrap" class="three-canvas-wrap"></div>
+
+      <div class="hero-content">
+        <div class="hero-badges">
+          <span class="badge">🌹 For Aaru</span>
+          <span class="badge">💕 With Love</span>
+        </div>
+        <h1 class="hero-title" id="hero-title">I'm Sorry <span class="aaru-name">Aaru</span> ❤️</h1>
+        <div class="hero-heart-main" id="hero-heart">
+          <div class="heart-inner">❤️</div>
+          <div class="heart-ring ring1"></div>
+          <div class="heart-ring ring2"></div>
+          <div class="heart-ring ring3"></div>
+        </div>
+        <div class="hero-subtitle">
+          <span id="typed-text" class="typed-output"></span>
+          <span class="typed-cursor">|</span>
+        </div>
+        <div class="hero-flowers" aria-hidden="true">
+          <span class="flower f1">🌸</span>
+          <span class="flower f2">🌺</span>
+          <span class="flower f3">🌸</span>
+          <span class="flower f4">🌹</span>
+          <span class="flower f5">🌸</span>
+          <span class="flower f6">🌺</span>
+        </div>
+        <div class="hero-butterflies" aria-hidden="true">
+          <span class="butterfly b1">🦋</span>
+          <span class="butterfly b2">🦋</span>
+          <span class="butterfly b3">🦋</span>
+        </div>
+        <div class="hero-cta">
+          <a href="#letter" class="cta-btn primary-btn">Read My Letter 💌</a>
+          <a href="#heart" class="cta-btn secondary-btn">Touch My Heart ❤️</a>
+        </div>
+      </div>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <div class="scroll-hint-icon">❤️</div>
+        <span>Scroll with love</span>
+      </div>
+    </section>
+
+    <!-- ======================== LOVE LETTER SECTION ======================== -->
+    <section id="letter" class="letter-section" aria-label="Love Letter">
+      <div class="section-bg-overlay"></div>
+      <div class="container">
+        <div class="section-header" data-aos="fade-down">
+          <span class="section-tag">💌 From My Heart</span>
+          <h2 class="section-title">Letter Apke liye 🥹</h2>
+          <div class="divider-hearts">❤️ ✨ ❤️</div>
+        </div>
+
+        <div class="letter-envelope" data-aos="zoom-in">
+          <div class="envelope-top"></div>
+          <div class="letter-paper" id="letter-paper">
+            <div class="letter-header">
+              <span class="letter-date" id="letter-date"></span>
+              <span class="letter-to">Meri Aaru💗,</span>
+            </div>
+
+            <div class="letter-body">
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="100">
+                Mera betu mai ye latter 03:23 am ko likh raha hu and i wanted to say im really sorry 🥹 sorry maf kardo mujhe 🥹.
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="200">
+                I know I made mistakes🥹. I said things I should never have said🥹🥹. I did things I wish I could erase🥹🥹. And for every single moment I caused you pain😭😭, I carry that guilt with me like a stone in my chest🥹🥹. You deserved so much better from me i tried 🥹 but I failed 🥹🥹 — and that breaks me more than anything else ever could😭😭😭😭.
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="300">
+                I never wanted to hurt you🥹, Aaru. Please believe that🥹.u think that my behavior changed 🥹 from when i joined the college 🥹apne socha mai muh marta hu 🥹🥹 jo maine kabhi ni kiya hai 🥹🥹 mai kisi ke sath bat ni karta 🥹🥹 except ashish in college 🥹akela baith ke bhi maine imagination me apke sath ka scenario banake🥹🥹🥹 khus hua hu 🥹
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="400">
+                 Ap sochte ho college join karne ke badh mai change ho gya 🥹🥹 nhi lakde ki koi value ni hoti hai jab tak wo na kamaye🥹🥹 isliye mai aur ashis ne kam dhundha 🥹🥹.
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="100">
+                Par ye sab ke chakkar me 🥹 apko laga mera behavior change ho gya 🥹🥹 time dena band ni kiya maine 🥹 bass delay ho gya 🥹🥹🥹 still im craving to talk to u baccha 🥹🥹. misunderstanding always kills the relationship 🥹🥹.
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="200">
+                sirf kam pe yad ni karta 🥹🥹 hamesha mauka dundhta rehta hu ki mauka mil jaye bat karne ke liye 🥹🥹 chahe kam pe hu ya college me 🥹🥹 mai puri kosis karta hu 🥹🥹 kash me ye apko dikha pata 🥹🥹. 
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="300">
+                efforts are useless jab tak ache se dikha na pao🥹🥹 yaha bhi aisa hai itna dur ho mere se 🥹🥹kuch ni dikha pata hu ki mai apko kitna miss karta hu 🥹🥹 jab available ni rehta 🥹🥹 kaise dikhau🥹🥹 ki kitna kosis karta hu bass ek conversation ke liye 🥹🥹.
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="400">
+                Kaise dikhau yee sab😭😭😭 limited energy hoti hai human ke pass🥹🥹mai rota reh gya but itni himmat ni hui ki firse conversation start kar saku🥹🥹🥹 kon hi hai apke siwa mera 🥹🥹 kisko apna emotion batata fir 🥹🥹 maf kardo 🥹🥹🥹 abse kabhi mai apko apni family problem ka bojh apke sar ni rakhunga 🥹🥹 pehele pta hota to mai kabhi ni btata 🥹🥹sorry for everything ik sorry wont fix everything i did 🥹.
+              </p>
+              <p class="letter-para" data-aos="fade-up" data-aos-delay="100">
+                Time ata hai ek jab problems ka bhandar ake sar pe ek sath girta hai 🥹🥹 aur wo time mear chal raha hai 🥹🥹I really scare to loose u 🥹🥹🥹 pls forgive me 🥹🥹 kaha jaunga kaise jiunga apke bina 🥹🥹its very easy to say 🥹🥹 but its evry hard to do 🥹🥹🥹 ni reh sakta apke bina 🥹🥹 apna kabhi chorke ni jata 🥹🥹 aur mai bhi ni jane wala 🥹🥹 khud ko perfect bananeka socha but utnahi gir gya 🥹🥹 mai apke nazar mai 🥹🥹There will never be a day that I stop loving you🥹🥹. No argument, no silence, no distance can undo what you are to me🥹🥹😭. You are my person💗🥹. My Aaru💗🫂🫂. My everything♾️🫂🥹. And if this life gives me anything — I pray it gives me enough time to show you just how much you matter🥹🥹and how much i love u 💗🥹.
+              </p>
+              <p class="letter-para letter-closing" data-aos="fade-up" data-aos-delay="200">
+                I love you💗. More than these words🥹. More than this page🥹. More than forever♾️.
+              </p>
+              <div class="letter-signature" data-aos="fade-up" data-aos-delay="300">
+                <span>Yours, always and completely💗</span>
+                <span class="sig-heart">❤️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ======================== REASONS I LOVE YOU ======================== -->
+    <section id="reasons" class="reasons-section" aria-label="Reasons I Love You">
+      <div class="container">
+        <div class="section-header" data-aos="fade-down">
+          <span class="section-tag">💕 100 Reasons</span>
+          <h2 class="section-title">Why I Love You, Aaru</h2>
+          <div class="divider-hearts">💗 ✨ 💗</div>
+          <p class="section-subtitle">Every single reason is true, felt deep in my soul.</p>
+        </div>
+        <div class="reasons-grid" id="reasons-grid">
+          <!-- Dynamically generated by script.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== PROMISE SECTION ======================== -->
+    <section id="promises" class="promises-section" aria-label="My Promises">
+      <div class="container">
+        <div class="section-header" data-aos="fade-down">
+          <span class="section-tag">🤞 My Promises</span>
+          <h2 class="section-title">I Promise You, Aaru</h2>
+          <div class="divider-hearts">✨ 💍 ✨</div>
+          <p class="section-subtitle">Promises I will keep, every single day.</p>
+        </div>
+        <div class="promises-grid" id="promises-grid">
+          <!-- Dynamically generated by script.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== INTERACTIVE HEART ======================== -->
+    <section id="heart" class="heart-section" aria-label="Interactive Heart">
+      <div class="container">
+        <div class="section-header" data-aos="fade-down">
+          <span class="section-tag">💓 Touch Me</span>
+          <h2 class="section-title">My Heart Beats for You</h2>
+          <div class="divider-hearts">❤️ 💕 ❤️</div>
+        </div>
+        <div class="interactive-heart-wrap" data-aos="zoom-in">
+          <!-- Big Clickable Heart -->
+          <div class="big-heart-container" id="big-heart-container">
+            <div class="big-heart" id="big-heart" role="button" tabindex="0" aria-label="Click to hear a sound">
+              <span class="big-heart-emoji">❤️</span>
+              <div class="heart-glow"></div>
+              <div class="heart-pulse-ring"></div>
+              <div class="heart-pulse-ring ring-2"></div>
+            </div>
+            <div class="heart-click-text" id="heart-click-text">i lob uh 💗</div>
+          </div>
+          <p class="heart-hint">Click / Tap the heart 💖</p>
+          <!-- Hidden audio element -->
+          <audio id="aaru-audio" src="aaru.mp3" preload="auto"></audio>
+        </div>
+
+        <style>
+          .big-heart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 40px auto;
+          }
+          .big-heart {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            animation: heartFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(255, 105, 135, 0.6));
+            z-index: 2;
+          }
+          .big-heart:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 50px rgba(255, 105, 135, 0.9));
+          }
+          .big-heart:active {
+            transform: scale(0.92);
+          }
+          .big-heart-emoji {
+            font-size: 180px;
+            display: block;
+            line-height: 1;
+            user-select: none;
+          }
+          @media (max-width: 768px) {
+            .big-heart-emoji {
+              font-size: 120px;
+            }
+          }
+
+          /* Glow behind heart */
+          .heart-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255, 105, 180, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            animation: glowPulse 2s ease-in-out infinite;
+          }
+
+          /* Pulse rings */
+          .heart-pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(255, 105, 180, 0.3);
+            border-radius: 50%;
+            animation: pulseRing 2s ease-out infinite;
+            z-index: -1;
+          }
+          .heart-pulse-ring.ring-2 {
+            animation-delay: 1s;
+          }
+
+          /* "i lob uh" text */
+          .heart-click-text {
+            margin-top: 20px;
+            font-family: 'Dancing Script', cursive, sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff69b4, #ff1493, #e91e9e, #ff69b4);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            opacity: 0;
+            transform: translateY(10px) scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            letter-spacing: 2px;
+            animation: none;
+          }
+          .heart-click-text.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            animation: textShimmer 1s ease-in-out;
+          }
+
+          /* Beat animation on click */
+          .big-heart.beating {
+            animation: heartBeat 0.6s ease-in-out;
+          }
+
+          @keyframes heartFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+          }
+          @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+          }
+          @keyframes pulseRing {
+            0% { width: 180px; height: 180px; opacity: 0.6; }
+            100% { width: 350px; height: 350px; opacity: 0; }
+          }
+          @keyframes heartBeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.25); }
+            30% { transform: scale(0.95); }
+            45% { transform: scale(1.15); }
+            60% { transform: scale(1); }
+          }
+          @keyframes textShimmer {
+            0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+            20% { opacity: 1; transform: translateY(0) scale(1.05); }
+            40% { transform: translateY(0) scale(1); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        </style>
+
+        <script>
+          (function() {
+            const heart = document.getElementById('big-heart');
+            const audio = document.getElementById('aaru-audio');
+            const clickText = document.getElementById('heart-click-text');
+            let textTimer = null;
+
+            function playHeartClick() {
+              // Play sound
+              if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+              }
+
+              // Beat animation
+              heart.classList.remove('beating');
+              void heart.offsetWidth; // trigger reflow
+              heart.classList.add('beating');
+
+              // Show "i lob uh 💗" text
+              clickText.classList.add('visible');
+              if (textTimer) clearTimeout(textTimer);
+              textTimer = setTimeout(() => {
+                clickText.classList.remove('visible');
+              }, 1000);
+
+              // Spawn mini hearts burst
+              for (let i = 0; i < 8; i++) {
+                spawnMiniHeart();
+              }
+            }
+
+            function spawnMiniHeart() {
+              const mini = document.createElement('span');
+              mini.textContent = ['💗', '💕', '💖', '❤️', '💘', '🩷'][Math.floor(Math.random() * 6)];
+              mini.style.cssText = `
+                position: absolute;
+                font-size: ${16 + Math.random() * 24}px;
+                top: 50%;
+                left: 50%;
+                pointer-events: none;
+                z-index: 10;
+                opacity: 1;
+                transition: all 1s ease-out;
+              `;
+              document.getElementById('big-heart-container').appendChild(mini);
+
+              const angle = Math.random() * Math.PI * 2;
+              const dist = 80 + Math.random() * 120;
+              requestAnimationFrame(() => {
+                mini.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist - 40}px) scale(0.3)`;
+                mini.style.opacity = '0';
+              });
+
+              setTimeout(() => mini.remove(), 1000);
+            }
+
+            heart.addEventListener('click', playHeartClick);
+            heart.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                playHeartClick();
+              }
+            });
+          })();
+        </script>
+        <div class="forgive-section" data-aos="fade-up">
+          <p class="forgive-text">If you're ready...</p>
+          <button id="forgive-btn" class="forgive-btn" aria-label="I forgive you button">
+            <span>💝 I Forgive You, Baby 💝</span>
+          </button>
+        </div>
+      </div>
+      <canvas id="fireworks-canvas" class="fireworks-canvas" aria-hidden="true"></canvas>
+    </section>
+
+
+
+
+
+    <!-- ======================== MINI GAMES ======================== -->
+    <section id="games" class="games-section" aria-label="Mini Games">
+      <div class="container">
+        <div class="section-header" data-aos="fade-down">
+          <span class="section-tag">🎮 Play With Me</span>
+          <h2 class="section-title">Our Love Games</h2>
+          <div class="divider-hearts">🎯 ✨ 🎯</div>
+        </div>
+        <div class="games-tabs">
+          <button class="game-tab active" data-game="catcher" id="tab-catcher">💖 Heart Catcher</button>
+          <button class="game-tab" data-game="memory" id="tab-memory">🃏 Memory Match</button>
+          <button class="game-tab" data-game="quiz" id="tab-quiz">💬 Love Quiz</button>
+        </div>
+        <div class="game-container">
+          <!-- Heart Catcher Game -->
+          <div class="game-panel active" id="game-catcher">
+            <div class="game-header">
+              <span>Score: <strong id="catcher-score">0</strong></span>
+              <span>Time: <strong id="catcher-time">30</strong>s</span>
+              <span>Lives: <strong id="catcher-lives">❤️❤️❤️</strong></span>
+            </div>
+            <canvas id="catcher-canvas" class="catcher-canvas" aria-label="Heart Catcher Game"></canvas>
+            <button class="game-start-btn" id="catcher-start">Start Game 🎮</button>
+          </div>
+
+          <!-- Memory Match Game -->
+          <div class="game-panel" id="game-memory">
+            <div class="game-header">
+              <span>Matches: <strong id="memory-matches">0/8</strong></span>
+              <span>Moves: <strong id="memory-moves">0</strong></span>
+              <button class="game-restart-btn" id="memory-restart">Restart 🔄</button>
+            </div>
+            <div class="memory-grid" id="memory-grid"></div>
+          </div>
+
+          <!-- Love Quiz Game -->
+          <div class="game-panel" id="game-quiz">
+            <div class="quiz-inner" id="quiz-inner">
+              <div class="quiz-progress-bar"><div id="quiz-progress"></div></div>
+              <div class="quiz-question" id="quiz-question">Press Start to begin!</div>
+              <div class="quiz-options" id="quiz-options"></div>
+              <div class="quiz-result" id="quiz-result"></div>
+              <button class="game-start-btn" id="quiz-start">Start Quiz 💕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== HIDDEN LOVE NOTES ======================== -->
+    <section id="hidden-notes" class="hidden-notes-section" aria-label="Hidden Love Notes">
+      <div class="container">
+        <div class="section-header" data-aos="fade-down">
+          <span class="section-tag">🔍 Find Them</span>
+          <h2 class="section-title">Hidden Love Notes for Aaru</h2>
+          <div class="divider-hearts">💌 ✨ 💌</div>
+          <p class="section-subtitle">Tap the glowing objects to reveal a secret message</p>
+        </div>
+        <div class="hidden-notes-grid" id="hidden-notes-grid">
+          <!-- Dynamically generated -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================== FOOTER ======================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-hearts" aria-hidden="true" id="footer-hearts"></div>
+    <div class="footer-content">
+      <div class="footer-heartbeat">
+        <div class="heartbeat-line">
+          <svg viewBox="0 0 200 50" class="heartbeat-svg">
+            <polyline points="0,25 40,25 50,5 60,45 70,5 80,45 90,25 200,25" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="footer-text">
+        Made with <span class="footer-heart-pulse">❤️</span> infinite love for
+        <span class="footer-name">Aaru</span>
+      </div>
+      <div class="footer-icons">
+        <span>🌹</span>
+        <span>💕</span>
+        <span>✨</span>
+        <span>🦋</span>
+        <span>🌸</span>
+      </div>
+      <div class="footer-quote">"You are my today and all of my tomorrows." — Leo Christopher</div>
+    </div>
+  </footer>
+
+  <!-- ======================== CONFETTI OVERLAY ======================== -->
+  <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- ======================== LOVE NOTE POPUP ======================== -->
+  <div id="love-popup" class="love-popup" role="dialog" aria-modal="true" aria-label="Love message">
+    <div class="love-popup-content">
+      <button class="popup-close" id="popup-close" aria-label="Close popup">✕</button>
+      <div class="popup-hearts" aria-hidden="true">❤️ 💕 ❤️</div>
+      <div class="popup-message" id="popup-message"></div>
+      <div class="popup-sparkles" aria-hidden="true">✨ 🌹 ✨</div>
+    </div>
+  </div>
+
+  <!-- ======================== EASTER EGG OVERLAY ======================== -->
+  <div id="easter-egg-overlay" class="easter-egg-overlay" role="dialog" aria-modal="true">
+    <div class="egg-content">
+      <div class="egg-icon" id="egg-icon"></div>
+      <div class="egg-message" id="egg-message"></div>
+      <button class="egg-close" id="egg-close">Close with Love 💕</button>
+    </div>
+  </div>
+
+  <!-- ======================== LIBRARIES ======================== -->
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <!-- AOS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <!-- Typed.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+
+  <!-- Custom Scripts -->
+  <script src="js/particles.js"></script>
+  <script src="js/effects.js"></script>
+  
+
+
+  <script src="js/games.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

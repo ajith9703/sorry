@@ -1,0 +1,412 @@
+/* =============================================
+   SORRY AARU — Animations CSS
+   Extra keyframes, hover states, GSAP helpers
+   ============================================= */
+
+/* === GSAP will-change hints === */
+.gsap-animated {
+  will-change: transform, opacity;
+}
+
+/* === Hero aurora shimmer === */
+@keyframes auroraPulse {
+  0%,100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+  33%     { opacity: 0.7; transform: scale(1.05) rotate(1deg); }
+  66%     { opacity: 0.5; transform: scale(0.98) rotate(-1deg); }
+}
+
+/* === Sparkle burst === */
+@keyframes sparkle {
+  0%   { transform: scale(0) rotate(0deg); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+}
+
+.sparkle-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1rem;
+  animation: sparkle 0.8s ease forwards;
+  z-index: 9999;
+}
+
+/* === Cursor heart trail === */
+.heart-trail-piece {
+  position: fixed;
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 9998;
+  animation: trailFade 0.8s ease forwards;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}
+
+@keyframes trailFade {
+  0%   { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%,-150%) scale(0.5) rotate(30deg); }
+}
+
+/* === Firework burst particle === */
+.firework-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: fireworkFly var(--dur) ease-out forwards;
+}
+
+@keyframes fireworkFly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
+}
+
+/* === Card reveal animation === */
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(30px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card-revealed {
+  animation: cardReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* === Ripple effect === */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 107, 157, 0.35);
+  transform: scale(0);
+  animation: rippleOut 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleOut {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* === Star twinkle === */
+@keyframes twinkle {
+  0%,100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  25%     { opacity: 0.3; transform: scale(0.5) rotate(45deg); }
+  75%     { opacity: 0.8; transform: scale(1.2) rotate(-20deg); }
+}
+
+.star-twinkle { animation: twinkle 2s ease-in-out infinite; }
+
+/* === Shimmer text effect === */
+@keyframes shimmerText {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg,
+    var(--pink) 0%,
+    var(--gold) 25%,
+    var(--pink-light) 50%,
+    var(--gold) 75%,
+    var(--pink) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 3s linear infinite;
+}
+
+/* === Glow pulse for elements === */
+@keyframes glowRing {
+  0%,100% { box-shadow: 0 0 10px rgba(255,107,157,0.3); }
+  50%     { box-shadow: 0 0 30px rgba(255,107,157,0.7), 0 0 60px rgba(155,89,182,0.3); }
+}
+
+.glow-ring { animation: glowRing 2s ease-in-out infinite; }
+
+/* === Love letter seal === */
+.letter-seal {
+  width: 60px; height: 60px;
+  background: var(--gradient-pink);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  margin: -30px auto 0;
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--shadow-pink);
+  animation: sealRotate 8s linear infinite;
+}
+
+@keyframes sealRotate {
+  to { transform: rotate(360deg); }
+}
+
+/* === Number counter animation helper === */
+@keyframes numFlip {
+  0%   { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.num-flip { animation: numFlip 0.3s ease forwards; }
+
+/* === Balloon string === */
+.balloon-string {
+  width: 2px;
+  height: 40px;
+  background: rgba(255,255,255,0.4);
+  margin: 0 auto;
+  border-radius: 1px;
+}
+
+/* === Confetti pieces === */
+.confetti-piece {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  animation: confettiFall var(--dur) ease forwards;
+  pointer-events: none;
+}
+
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* === Floating hearts (Canvas overlay) === */
+@keyframes floatHeart {
+  0%   { transform: translateY(0) scale(1); opacity: 0.8; }
+  50%  { transform: translateY(-40px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+}
+
+/* === Card shimmer border === */
+.card-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 100%
+  );
+  transform: rotate(15deg);
+  transition: left 0.8s ease;
+}
+
+.card-shimmer:hover::after { left: 125%; }
+
+/* === Hero particle dot === */
+.hero-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: heroParticleFloat linear infinite;
+}
+
+@keyframes heroParticleFloat {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+/* === Heartbeat line animation === */
+@keyframes ecgDraw {
+  0%   { stroke-dashoffset: 800; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* === Promise checkmark draw === */
+@keyframes checkDraw {
+  from { stroke-dashoffset: 50; opacity: 0; }
+  to   { stroke-dashoffset: 0; opacity: 1; }
+}
+
+/* === Typewriter cursor blink === */
+@keyframes cursorBlink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0; }
+}
+
+/* === AOS custom overrides === */
+[data-aos="love-fade"] {
+  opacity: 0;
+  transform: translateY(30px) scale(0.9);
+  transition-property: opacity, transform;
+}
+
+[data-aos="love-fade"].aos-animate {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* === Section separator hearts === */
+.section-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.section-separator::before,
+.section-separator::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, rgba(255,107,157,0.3), transparent);
+}
+
+/* === Glassmorphism card (shared) === */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* === Neumorphism elements === */
+.neuo-card {
+  background: var(--dark-card);
+  border-radius: var(--radius-md);
+  box-shadow:
+    6px 6px 16px rgba(0,0,0,0.4),
+    -4px -4px 12px rgba(255,107,157,0.05);
+}
+
+/* === Animated gradient border === */
+@keyframes borderGradient {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: var(--radius-md);
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--pink), var(--purple), var(--gold), var(--pink));
+  background-size: 300% 300%;
+  border-radius: inherit;
+  z-index: -1;
+  animation: borderGradient 3s ease infinite;
+}
+
+/* === Star field animation === */
+.star-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: starTwinkle var(--dur) ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+  0%,100% { opacity: var(--opacity); transform: scale(1); }
+  50%     { opacity: calc(var(--opacity) * 0.3); transform: scale(0.5); }
+}
+
+/* === Bloom flower === */
+@keyframes bloomFlower {
+  0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+  60%  { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.bloom { animation: bloomFlower 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* === Pulse ring === */
+.pulse-ring {
+  position: absolute;
+  border: 2px solid var(--pink);
+  border-radius: 50%;
+  animation: pulseRingExpand 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulseRingExpand {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* === Music visualizer bars === */
+.visualizer-bar {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--gradient-pink);
+  animation: visualizerAnim var(--dur) ease-in-out infinite alternate;
+}
+
+@keyframes visualizerAnim {
+  from { height: 4px; }
+  to   { height: var(--max-h); }
+}
+
+/* === Lazy loading fade in === */
+.lazy-fade {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.lazy-fade.loaded { opacity: 1; }
+
+/* === Bounce in animation === */
+@keyframes bounceIn {
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.05); opacity: 0.9; }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bounce-in { animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* === Shake animation === */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  15%     { transform: translateX(-8px) rotate(-2deg); }
+  30%     { transform: translateX(8px) rotate(2deg); }
+  45%     { transform: translateX(-5px) rotate(-1deg); }
+  60%     { transform: translateX(5px) rotate(1deg); }
+  75%     { transform: translateX(-3px); }
+}
+
+.shake { animation: shake 0.6s ease; }
+
+/* === Infinite scroll ticker === */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* === Neon text glow === */
+.neon-pink {
+  color: var(--pink);
+  text-shadow:
+    0 0 5px var(--pink),
+    0 0 20px var(--pink),
+    0 0 40px var(--pink-deep);
+}
+
+.neon-gold {
+  color: var(--gold);
+  text-shadow:
+    0 0 5px var(--gold),
+    0 0 20px var(--gold),
+    0 0 40px #e4a011;
+}
